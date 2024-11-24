@@ -1,7 +1,7 @@
-const express = require('express');
-const cors = require('cors');
-const bodyParser = require('body-parser');
-const db = require('./koneksi');
+import express from 'express';
+import cors from 'cors';
+import bodyParser from 'body-parser';
+import db from './src/Database/setup.js';
 
 const app = express();
 
