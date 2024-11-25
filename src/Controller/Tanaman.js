@@ -9,9 +9,9 @@ export async function getTanaman(user_id) {
         throw new Error('Internal Server Error');
     }
 }
-export async function addTanaman(user_id, nama_tanaman, jenis_tanaman) {
+export async function addTanaman(user_id, nama_tanaman, jenis_tanaman,tanggal_tanam) {
     try {
-        const sqlCheck = `SELECT * FROM listPlants where name = ?`;
+        const sqlCheck = `SELECT * FROM listplants where id = ?`;
         const [resultCheck] = await db.query(sqlCheck, [jenis_tanaman]);
         if (resultCheck.length === 0) {
             throw new Error('Jenis Tanaman Tidak Ada');
@@ -21,11 +21,14 @@ export async function addTanaman(user_id, nama_tanaman, jenis_tanaman) {
         if (resultName.length !== 0) {
             throw new Error('Nama Tanaman Sudah Ada');
         }
-        const sql = `INSERT INTO plants (user_id, plant_list_id,name) VALUES (?, ?, ?)`;
-        const [result] = await db.query(sql, [user_id, resultCheck[0].id ,nama_tanaman]);
+        const tanggal_panen = new Date(tanggal_tanam);
+        const panen=tanggal_panen.setDate(tanggal_panen.getDate() + resultCheck[0].harvest_time * 7);
+        const sql = `INSERT INTO plants (user_id, plant_list_id,name,tanggal_tanam,tanggal_panen) VALUES (?, ?, ?,?,?)`;
+        const [result] = await db.query(sql, [user_id, resultCheck[0].id ,nama_tanaman,tanggal_tanam,panen]);
         return result;
     }
     catch (err) {
+        console.error(err);
         throw new Error('Internal Server Error');
     }
 }

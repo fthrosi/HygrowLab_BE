@@ -35,6 +35,7 @@ import jwt from 'jsonwebtoken';
     
   }
 export function validateLoginBody(req, res, next) {
+    console.log(req.body);
     const { email, password } = req.body;
   
     if (!email || !password) {

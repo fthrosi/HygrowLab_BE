@@ -15,9 +15,10 @@ router.get('/tanaman', async (req, res) => {
 });
 router.post('/tanaman',authenticateToken, async (req, res) => {
     const user_id = req.user.id;
-    const {nama_tanaman, jenis_tanaman} = req.body;
+    const {nama_tanaman, jenis_tanaman, tanggal_tanam} = req.body;
+    console.log(req.body);
     try{
-        const result = await addTanaman(user_id, nama_tanaman, jenis_tanaman);
+        const result = await addTanaman(user_id, nama_tanaman, jenis_tanaman,tanggal_tanam);
         res.status(201).json({ message: 'Tanaman berhasil ditambahkan', data: result });
     }catch(err){
         res.status(500).json({ error: err.message });
