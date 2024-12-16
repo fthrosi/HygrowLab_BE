@@ -12,14 +12,14 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = /jpeg|jpg|png|gif/;
+  const allowedTypes = /jpeg|jpg|png/;
   const mimeType = allowedTypes.test(file.mimetype);
   const extName = allowedTypes.test(path.extname(file.originalname).toLowerCase());
 
   if (mimeType && extName) {
     cb(null, true);
   } else {
-    cb(new Error('Hanya mendukung file gambar (jpeg, jpg, png, gif)'));
+    cb(new Error('Hanya mendukung file gambar (jpeg, jpg, png)'));
   }
 };
 
