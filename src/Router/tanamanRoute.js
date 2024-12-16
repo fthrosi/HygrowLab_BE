@@ -1,11 +1,12 @@
 import express from 'express';
-import {getTanaman,addTanaman,updateTanaman,deleteTanaman} from '../Controller/Tanaman.js';
+import {getTanaman,addTanaman,updateTanaman,deleteTanaman,getJenisTanaman} from '../Controller/Tanaman.js';
 import { authenticateToken } from '../middleware/Auth.js';
 
 const router = express.Router();
 
-router.get('/tanaman', async (req, res) => {
+router.get('/tanaman',authenticateToken, async (req, res) => {
     const user_id = req.user.id;
+    console.log(user_id);
     try{
         const result = await getTanaman(user_id);
         res.status(200).json({ message: 'Data tanaman berhasil didapatkan', data: result });
@@ -21,7 +22,8 @@ router.post('/tanaman',authenticateToken, async (req, res) => {
         const result = await addTanaman(user_id, nama_tanaman, jenis_tanaman,tanggal_tanam);
         res.status(201).json({ message: 'Tanaman berhasil ditambahkan', data: result });
     }catch(err){
-        res.status(500).json({ error: err.message });
+        const statusCode = err.statusCode
+        res.status(statusCode).json({ error: err.message });
     }
 });
 router.put('/tanaman/:id',authenticateToken, async (req, res) => {
@@ -39,6 +41,14 @@ router.delete('/tanaman/:id',authenticateToken, async (req, res) => {
     try{
         const result = await deleteTanaman(id);
         res.status(200).json({ message: 'Tanaman berhasil dihapus', data: result });
+    }catch(err){
+        res.status(500).json({ error: err.message });
+    }
+});
+router.get('/list',authenticateToken, async (req, res) => {
+    try{
+        const result = await getJenisTanaman();
+        res.status(200).json({ message: 'Data list tanaman berhasil didapatkan', data: result });
     }catch(err){
         res.status(500).json({ error: err.message });
     }
