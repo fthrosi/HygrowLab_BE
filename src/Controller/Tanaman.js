@@ -17,7 +17,13 @@ export async function getTanaman(user_id) {
                 p.name AS plant_name, 
                 pl.name AS plant_list_name, 
                 p.tanggal_tanam As tanggal_tanam, 
-                p.tanggal_panen As tanggal_panen
+                p.tanggal_panen As tanggal_panen,
+                (SELECT foto 
+                 FROM recordings r2 
+                 WHERE r2.id_plant = p.id 
+                   AND r2.foto IS NOT NULL
+                 ORDER BY r2.created_at DESC 
+                 LIMIT 1) AS foto
             FROM 
                 plants p
             INNER JOIN 
@@ -25,10 +31,11 @@ export async function getTanaman(user_id) {
             ON 
                 p.plant_list_id = pl.id
             WHERE 
-                p.user_id = ?;`;
+                p.user_id = ?`;
     const [result] = await db.query(sql, [user_id]);
     const formattedResult = result.map(item => ({
         ...item,
+        foto: item.foto ? item.foto.replace(/\\/g, '/') : null,
         tanggal_tanam: item.tanggal_tanam ? new Date(item.tanggal_tanam).toISOString().split('T')[0] : null,
         tanggal_panen: item.tanggal_panen ? new Date(item.tanggal_panen).toISOString().split('T')[0] : null
       }));
