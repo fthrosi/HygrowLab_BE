@@ -1,6 +1,10 @@
 import express from 'express';
-import {registerUser,loginUser,logout} from '../Controller/Auth.js';
-import {validateRegisterBody,validateLoginBody,authenticateToken} from '../middleware/Auth.js'
+import { registerUser, loginUser, logout } from '../Controller/Auth.js';
+import {
+  validateRegisterBody,
+  validateLoginBody,
+  authenticateToken,
+} from '../middleware/Auth.js';
 const router = express.Router();
 
 router.post('/register', validateRegisterBody, async (req, res) => {
@@ -14,24 +18,30 @@ router.post('/register', validateRegisterBody, async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-router.post('/login', validateLoginBody,async (req, res) => {
-    const { email, password } = req.body;
-    try{
-        const result = await loginUser(email, password,res);
-        res.status(200).json({ message: 'User logged in successfully', data: result ,accessToken:result.accessToken});
-    }catch(err){
-        res.status(500).json({ error: err.message });
-    }
+router.post('/login', validateLoginBody, async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const result = await loginUser(email, password, res);
+    res
+      .status(200)
+      .json({
+        message: 'User logged in successfully',
+        data: result,
+        accessToken: result.accessToken,
+      });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
-router.put('/logout', authenticateToken,async (req,res) => {
-    const id = req.user.id
-    try{
-        const result = await logout(id);
-        res.status(200).json({ message: 'User logged out successfully'});
-    }catch(err){
-        res.status(500).json({ error: err.message });
-    }
-})
+router.put('/logout', authenticateToken, async (req, res) => {
+  const id = req.user.id;
+  try {
+    const result = await logout(id);
+    res.status(200).json({ message: 'User logged out successfully' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // router.post('/refreshToken', async (req,res)=>{
 //     const refresh = req.cookies.refreshToken;

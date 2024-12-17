@@ -58,16 +58,15 @@ export async function loginUser(email, password, res) {
     throw new Error("Internal Server Error");
   }
 }
-
 export async function logout(id) {
   try {
     const delet = `Update users Set refreshToken = Null where id = ?`;
-    const [deleted] = await db.query(delet,[id]);
-    console.log("berhasil");
+    const [deleted] = await db.query(delet, [id]);
+    console.log('berhasil');
     return deleted;
   } catch (err) {
-    console.log("gagal");
-    throw new Error("Internal Server Error");
+    console.log('gagal');
+    throw new Error('Internal Server Error');
   }
 }
 
