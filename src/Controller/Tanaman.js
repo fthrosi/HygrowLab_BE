@@ -37,8 +37,8 @@ export async function getTanaman(user_id) {
     const formattedResult = result.map(item => ({
         ...item,
         foto: item.foto ? item.foto.replace(/\\/g, '/') : null,
-        tanggal_tanam: item.tanggal_tanam ? new Date(item.tanggal_tanam).toISOString().split('T')[0] : null,
-        tanggal_panen: item.tanggal_panen ? new Date(item.tanggal_panen).toISOString().split('T')[0] : null
+        tanggal_tanam: item.tanggal_tanam ? new Date(item.tanggal_tanam.getTime() - item.tanggal_tanam.getTimezoneOffset() * 60000).toISOString().split('T')[0] : null,
+        tanggal_panen: item.tanggal_panen ? new Date(item.tanggal_panen.getTime() -item.tanggal_panen.getTimezoneOffset() * 60000).toISOString().split('T')[0] : null
       }));
     return formattedResult;
   } catch (err) {
@@ -52,6 +52,7 @@ export async function addTanaman(
   tanggal_tanam
 ) {
   try {
+    const tanggaltnm = new Date(tanggal_tanam)
     const sqlCheck = `SELECT * FROM listplants where id = ?`;
     const [resultCheck] = await db.query(sqlCheck, [jenis_tanaman]);
     if (resultCheck.length === 0) {
@@ -63,16 +64,18 @@ export async function addTanaman(
       throw { message: 'Nama Tanaman Sudah Ada', statusCode: 400 };
     }
     const lamaPanen = resultCheck[0].harvest_time * 7;
-    const tanggal_panen = new Date(tanggal_tanam);
+    const tanggal_panen = new Date(tanggaltnm);
     tanggal_panen.setDate(tanggal_panen.getDate() + lamaPanen);
 
     const tanggalPanenStr = tanggal_panen.toISOString().split("T")[0];
+    console.log(tanggaltnm)
+    console.log(tanggalPanenStr)
     const sql = `INSERT INTO plants (user_id, plant_list_id,name,tanggal_tanam,tanggal_panen) VALUES (?, ?, ?,?,?)`;
     const [result] = await db.query(sql, [
       user_id,
       resultCheck[0].id,
       nama_tanaman,
-      tanggal_tanam,
+      tanggaltnm,
       tanggalPanenStr,
     ]);
     return result;
