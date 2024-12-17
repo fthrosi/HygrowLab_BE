@@ -1,23 +1,21 @@
 import express from 'express';
 import {
-  getName,
+  getUser,
   getUpdate,
-  getFoto,
+  updateFoto,
   getUpdatePass,
   getJumlah,
   getPlants,
 } from '../Controller/Profile.js';
-import multer from 'multer';
-import bcrypt from 'bcrypt';
 import upload from '../middleware/multer.js';
+import { authenticateToken } from '../middleware/Auth.js';
 
 const router = express.Router();
 
-router.get('/user/:id', async (req, res) => {
-  const user_id = req.params.id;
+router.get('/user',authenticateToken, async (req, res) => {
+  const user_id = req.user.id;
   try {
-    const result = await getName(user_id);
-
+    const result = await getUser(user_id);
     res
       .status(200)
       .json({ message: 'Data Nama berhasil didapatkan', data: result });
@@ -25,36 +23,36 @@ router.get('/user/:id', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-router.get('/plants/:id', async (req, res) => {
-  const user_id = req.params.id;
-  try {
-    const result = await getJumlah(user_id);
+// router.get('/plants/:id', async (req, res) => {
+//   const user_id = req.params.id;
+//   try {
+//     const result = await getJumlah(user_id);
 
-    res
-      .status(200)
-      .json({ message: 'jumlah tanaman berhasil didapatkan', data: result });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-router.get('/jenis/:id', async (req, res) => {
-  const user_id = req.params.id;
-  try {
-    const result = await getPlants(user_id);
+//     res
+//       .status(200)
+//       .json({ message: 'jumlah tanaman berhasil didapatkan', data: result });
+//   } catch (err) {
+//     res.status(500).json({ error: err.message });
+//   }
+// });
+// router.get('/jenis/:id', async (req, res) => {
+//   const user_id = req.params.id;
+//   try {
+//     const result = await getPlants(user_id);
 
-    res.status(200).json({
-      message: 'jumlah jenis tanaman berhasil didapatkan',
-      data: result,
-    });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-router.patch('/user/:id', async (req, res) => {
-  const id = req.params.id;
-  const { full_name, birthday, city, email } = req.body;
+//     res.status(200).json({
+//       message: 'jumlah jenis tanaman berhasil didapatkan',
+//       data: result,
+//     });
+//   } catch (err) {
+//     res.status(500).json({ error: err.message });
+//   }
+// });
+router.put('/user',authenticateToken, async (req, res) => {
+  const id = req.user.id;
+  const { full_name, tanggal, city, email } = req.body;
   try {
-    const result = await getUpdate(full_name, birthday, city, email, id);
+    const result = await getUpdate(full_name, tanggal, city, email, id);
 
     res.status(200).json({ message: 'Data berhasil di update', data: result });
   } catch (err) {
@@ -62,41 +60,29 @@ router.patch('/user/:id', async (req, res) => {
   }
 });
 
-router.patch('/upload/:id', upload.single('file'), async (req, res) => {
-  const id = req.params.id;
-  const file = req.file;
-
-  if (!file) {
-    return res.status(400).send('Tidak ada file yang diunggah');
-  }
-
-  // Simpan informasi file ke database jika perlu
-  const foto = `${file.filename}`;
+router.put('/upload',authenticateToken, upload.single('foto'), async (req, res) => {
+  const id = req.user.id;
+  const foto = req.file ? req.file.path : null;
   try {
-    const result = await getFoto(id, foto);
+    const result = await updateFoto(id, foto);
 
     res.status(200).json({ message: 'Foto berhasil di update', data: result });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
-router.patch('/updatepass/:id', async (req, res) => {
-  const user_id = req.params.id;
-  const { oldPass1, oldPass2, newPass } = req.body;
+router.put('/updatepass',authenticateToken, async (req, res) => {
+  const user_id = req.user.id;
+  const { password,newPassword } = req.body;
 
   try {
-    const isMatch = await bcrypt.compare(oldPass2, oldPass1);
-    if (!isMatch) {
-      return res.status(400).json({ message: 'Password Lama salah!' });
-    }
-    const hashedNewPass = await bcrypt.hash(newPass, 10);
-    const result = await getUpdatePass(hashedNewPass, user_id);
-
+    const result = await getUpdatePass(password,newPassword, user_id);
     res
       .status(200)
       .json({ message: 'Password Berhasil Di ubah', data: result });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    const statusCode = err.statusCode || 500;
+    res.status(statusCode).json({ error: err.message || 'Internal Server Error' });
   }
 });
 export default router;

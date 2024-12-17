@@ -104,7 +104,6 @@ export async function updateFoto(foto, id) {
       const oldFilePath = path.resolve(__dirname, "..", "..", normalizedPath);
       if (fs.existsSync(oldFilePath)) {
         fs.unlinkSync(oldFilePath);
-        console.log(`File lama "${oldFoto}" berhasil dihapus.`);
       }
     }
     return {
