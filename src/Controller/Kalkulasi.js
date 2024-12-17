@@ -32,7 +32,11 @@ export async function kalkulasi(id_tanaman, volume_air, usia) {
         if (resultData.length === 0) {
             throw { message: 'Jenis Tanaman Tidak Ditemukan', statusCode: 404 };
         }
-
+        const cekData = `SELECT * FROM recordings where id_plant = ? AND age = ?`
+        const [hasilCek] = await db.query(cekData,[id_tanaman,usia])
+        if (hasilCek.length != 0){
+            throw { message: 'Sudah ada Nutrisi di usia ini', statusCode: 400 };
+        }
         const data = `SELECT nitrogen as N, phosporus as P, pottasium as K, week 
                       FROM nutrient_plants 
                       WHERE id_plant = ? AND week = ?`;

@@ -17,7 +17,13 @@ export async function getTanaman(user_id) {
                 p.name AS plant_name, 
                 pl.name AS plant_list_name, 
                 p.tanggal_tanam As tanggal_tanam, 
-                p.tanggal_panen As tanggal_panen
+                p.tanggal_panen As tanggal_panen,
+                (SELECT foto 
+                 FROM recordings r2 
+                 WHERE r2.id_plant = p.id 
+                   AND r2.foto IS NOT NULL
+                 ORDER BY r2.created_at DESC 
+                 LIMIT 1) AS foto
             FROM 
                 plants p
             INNER JOIN 
@@ -25,12 +31,14 @@ export async function getTanaman(user_id) {
             ON 
                 p.plant_list_id = pl.id
             WHERE 
-                p.user_id = ?;`;
+                p.user_id = ?
+            ORDER BY p.created_at DESC`;
     const [result] = await db.query(sql, [user_id]);
     const formattedResult = result.map(item => ({
         ...item,
-        tanggal_tanam: item.tanggal_tanam ? new Date(item.tanggal_tanam).toISOString().split('T')[0] : null,
-        tanggal_panen: item.tanggal_panen ? new Date(item.tanggal_panen).toISOString().split('T')[0] : null
+        foto: item.foto ? item.foto.replace(/\\/g, '/') : null,
+        tanggal_tanam: item.tanggal_tanam ? new Date(item.tanggal_tanam.getTime() - item.tanggal_tanam.getTimezoneOffset() * 60000).toISOString().split('T')[0] : null,
+        tanggal_panen: item.tanggal_panen ? new Date(item.tanggal_panen.getTime() -item.tanggal_panen.getTimezoneOffset() * 60000).toISOString().split('T')[0] : null
       }));
     return formattedResult;
   } catch (err) {
@@ -44,6 +52,7 @@ export async function addTanaman(
   tanggal_tanam
 ) {
   try {
+    const tanggaltnm = new Date(tanggal_tanam)
     const sqlCheck = `SELECT * FROM listplants where id = ?`;
     const [resultCheck] = await db.query(sqlCheck, [jenis_tanaman]);
     if (resultCheck.length === 0) {
@@ -55,16 +64,18 @@ export async function addTanaman(
       throw { message: 'Nama Tanaman Sudah Ada', statusCode: 400 };
     }
     const lamaPanen = resultCheck[0].harvest_time * 7;
-    const tanggal_panen = new Date(tanggal_tanam);
+    const tanggal_panen = new Date(tanggaltnm);
     tanggal_panen.setDate(tanggal_panen.getDate() + lamaPanen);
 
     const tanggalPanenStr = tanggal_panen.toISOString().split("T")[0];
+    console.log(tanggaltnm)
+    console.log(tanggalPanenStr)
     const sql = `INSERT INTO plants (user_id, plant_list_id,name,tanggal_tanam,tanggal_panen) VALUES (?, ?, ?,?,?)`;
     const [result] = await db.query(sql, [
       user_id,
       resultCheck[0].id,
       nama_tanaman,
-      tanggal_tanam,
+      tanggaltnm,
       tanggalPanenStr,
     ]);
     return result;
