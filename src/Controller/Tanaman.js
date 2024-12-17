@@ -31,7 +31,8 @@ export async function getTanaman(user_id) {
             ON 
                 p.plant_list_id = pl.id
             WHERE 
-                p.user_id = ?`;
+                p.user_id = ?
+            ORDER BY p.created_at DESC`;
     const [result] = await db.query(sql, [user_id]);
     const formattedResult = result.map(item => ({
         ...item,
