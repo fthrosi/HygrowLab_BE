@@ -5,16 +5,14 @@ import jwt from "jsonwebtoken";
 
 dotenv.config();
 
-export async function registerUser(fullName, email, password, city, birthDate) {
+export async function registerUser(fullName, email, password) {
   const hashedPassword = await bcrypt.hash(password, 10);
   try {
-    const sql = `INSERT INTO users (full_name, email, password, city, birthday) VALUES (?, ?, ?, ?, ?)`;
+    const sql = `INSERT INTO users (full_name, email, password) VALUES (?, ?, ?)`;
     const [result] = await db.query(sql, [
       fullName,
       email,
       hashedPassword,
-      city,
-      birthDate,
     ]);
     return result;
   } catch (err) {
