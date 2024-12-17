@@ -6,8 +6,10 @@ import {
   getUpdatePass,
   getJumlah,
   getPlants,
+  getRecord,
+  getChart,
 } from '../Controller/Profile.js';
-import multer from 'multer';
+
 import bcrypt from 'bcrypt';
 import upload from '../middleware/multer.js';
 
@@ -95,6 +97,32 @@ router.patch('/updatepass/:id', async (req, res) => {
     res
       .status(200)
       .json({ message: 'Password Berhasil Di ubah', data: result });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+router.get('/record/:id', async (req, res) => {
+  const user_id = req.params.id;
+  try {
+    const result = await getRecord(user_id);
+
+    res.status(200).json({
+      message: 'jumlah jenis tanaman berhasil didapatkan',
+      data: result,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+router.get('/chart/:id', async (req, res) => {
+  const user_id = req.params.id;
+  try {
+    const result = await getChart(user_id);
+
+    res.status(200).json({
+      message: 'jumlah jenis tanaman berhasil didapatkan',
+      data: result,
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
