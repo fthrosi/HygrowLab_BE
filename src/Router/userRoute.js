@@ -4,13 +4,15 @@ import {validateRegisterBody,validateLoginBody,authenticateToken} from '../middl
 const router = express.Router();
 
 router.post('/register', validateRegisterBody, async (req, res) => {
-    const { fullName, email, password, city, birthDate } = req.body;
-    try{
-        const result = await registerUser(fullName, email, password, city, birthDate);
-        res.status(201).json({ message: 'User registered successfully', data: result });
-    }catch(err){
-        res.status(500).json({ error: err.message });
-    }
+  const { fullName, email, password } = req.body;
+  try {
+    const result = await registerUser(fullName, email, password);
+    res
+      .status(201)
+      .json({ message: 'User registered successfully', data: result });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 router.post('/login', validateLoginBody,async (req, res) => {
     const { email, password } = req.body;
