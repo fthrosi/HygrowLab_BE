@@ -25,31 +25,55 @@ router.get('/user', authenticateToken, async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-// router.get('/plants/:id', async (req, res) => {
-//   const user_id = req.params.id;
-//   try {
-//     const result = await getJumlah(user_id);
+router.get('/plants',authenticateToken, async (req, res) => {
+  const user_id = req.user.id;
+  try {
+    const result = await getJumlah(user_id);
 
-//     res
-//       .status(200)
-//       .json({ message: 'jumlah tanaman berhasil didapatkan', data: result });
-//   } catch (err) {
-//     res.status(500).json({ error: err.message });
-//   }
-// });
-// router.get('/jenis/:id', async (req, res) => {
-//   const user_id = req.params.id;
-//   try {
-//     const result = await getPlants(user_id);
+    res
+      .status(200)
+      .json({ message: 'jumlah tanaman berhasil didapatkan', data: result });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+router.get('/record',authenticateToken, async (req, res) => {
+  const user_id = req.user.id;
+  try {
+    const result = await getRecord(user_id);
 
-//     res.status(200).json({
-//       message: 'jumlah jenis tanaman berhasil didapatkan',
-//       data: result,
-//     });
-//   } catch (err) {
-//     res.status(500).json({ error: err.message });
-//   }
-// });
+    res
+      .status(200)
+      .json({ message: 'jumlah tanaman berhasil didapatkan', data: result });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+  router.get('/chart',authenticateToken, async (req, res) => {
+    const user_id = req.user.id;
+    try {
+      const result = await getChart(user_id);
+  
+      res
+        .status(200)
+        .json({ message: 'jumlah tanaman berhasil didapatkan', data: result });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+});
+router.get('/jenis/:id', async (req, res) => {
+  const user_id = req.params.id;
+  try {
+    const result = await getPlants(user_id);
+
+    res.status(200).json({
+      message: 'jumlah jenis tanaman berhasil didapatkan',
+      data: result,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 router.put('/user', authenticateToken, async (req, res) => {
   const id = req.user.id;
   const { full_name, tanggal, city, email } = req.body;

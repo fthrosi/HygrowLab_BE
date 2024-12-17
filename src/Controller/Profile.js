@@ -112,7 +112,11 @@ export async function getRecord(id) {
   try {
     const sql = `SELECT plants.name AS plant_name, listplants.name AS listplant_name, recordings.created_at, plants.plant_list_id FROM recordings INNER JOIN plants ON plants.user_id = recordings.id_user AND plants.id = recordings.id_plant INNER JOIN listplants ON listplants.id = plants.plant_list_id  WHERE recordings.id_user = ?;`;
     const [result] = await db.query(sql, [id]);
-    return result;
+    const formattedResult = result.map(item => ({
+      ...item,
+      created_at: item.created_at ? new Date(item.created_at.getTime() - item.created_at.getTimezoneOffset() * 60000).toISOString().split('T')[0] : null,
+    }));
+    return formattedResult;
   } catch (err) {
     throw new Error('Internal Server Error');
   }
