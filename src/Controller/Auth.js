@@ -16,7 +16,7 @@ export async function registerUser(fullName, email, password) {
     ]);
     return result;
   } catch (err) {
-    throw new Error("Internal Server Error");
+    throw new Error(err);
   }
 }
 
